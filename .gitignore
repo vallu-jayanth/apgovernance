@@ -3,3 +3,4 @@ __pycache__/
 node_modules/
 data/photos.db
 .claude/
+kaggle/results*.db
