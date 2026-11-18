@@ -1,21 +1,24 @@
 # Kaggle notebook script: judge every proof photo with an open-source vision model on Kaggle's free GPUs.
 #
 # Setup (Kaggle): Notebook -> Accelerator "GPU T4 x2", Internet "On".
-#   Add data -> your dataset containing photos.db (made locally with scripts/photos_db.py fetch).
+#   Add data -> your dataset containing photos.db (or kaggle/pilot.db for a first test).
 #   Cell 1:  !pip install -q vllm==0.7.3
 #   Cell 2:  paste this file and run. Output: /kaggle/working/results.db (download it, then locally:
 #            python3 scripts/photos_db.py import results.db && python3 scripts/photos_db.py export)
 #
 # Resumable: Kaggle sessions stop after 12 h. Add the previous run's results.db as a second input;
 # photos already judged there are skipped and copied forward.
-# Untested on Kaggle yet: run the PILOT first (set PILOT = 50) and check the answers by eye.
+# Untested on Kaggle yet: run kaggle/pilot.db first and check the answers by eye.
 import base64, glob, json, os, re, sqlite3, time
+import torch
 from vllm import LLM, SamplingParams
 
-MODEL = 'Qwen/Qwen2.5-VL-7B-Instruct'
-PILOT = 50          # set to 0 for the full run
+GPUS = torch.cuda.device_count()
+# 7B needs two T4s; on a single GPU fall back to the 3B model
+MODEL = 'Qwen/Qwen2.5-VL-7B-Instruct' if GPUS >= 2 else 'Qwen/Qwen2.5-VL-3B-Instruct'
+PILOT = 0           # >0 limits the run to that many photos
 BATCH = 64
-src = glob.glob('/kaggle/input/**/photos.db', recursive=True)[0]
+src = (glob.glob('/kaggle/input/**/photos.db', recursive=True) + glob.glob('/kaggle/input/**/pilot.db', recursive=True))[0]
 prev = [p for p in glob.glob('/kaggle/input/**/results.db', recursive=True)]
 OUT = '/kaggle/working/results.db'
 
@@ -43,7 +46,7 @@ Look only at the photo. Reply with JSON only, no other text:
  "blank": true | false,                 // blank, black, fully blurred or unusable?
  "stamp": "<date and place text printed on the photo, or empty>"}}"""
 
-llm = LLM(model=MODEL, tensor_parallel_size=2, dtype='half', max_model_len=4096,
+llm = LLM(model=MODEL, tensor_parallel_size=max(GPUS, 1), dtype='half', max_model_len=4096,
           limit_mm_per_prompt={'image': 1}, gpu_memory_utilization=0.9)
 params = SamplingParams(temperature=0, max_tokens=160)
 
@@ -71,5 +74,4 @@ for b in range(0, len(todo), BATCH):
     n = b + len(chunk); print(f'{n}/{len(todo)}  {n / (time.time() - t0):.1f} photos/s', flush=True)
 
 for row in out.execute("SELECT matches, COUNT(*) FROM checks GROUP BY matches"): print(row)
-if PILOT:
-    for row in out.execute('SELECT c.work, c.matches, c.shows, c.screen, c.blank FROM checks c LIMIT 50'): print(row)
+for row in out.execute('SELECT work, matches, screen, blank, shows FROM checks ORDER BY matches LIMIT 200'): print(row)
