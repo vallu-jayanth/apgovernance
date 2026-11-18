@@ -1,0 +1,13 @@
+const assert = require('assert');
+const {parseCashBook, flagVouchers, estimateOf, decode} = require('./core.js');
+const rows = require(process.argv[2]);
+const {title, vouchers, totals} = parseCashBook(rows);
+flagVouchers(vouchers);
+console.log(title); console.log('vouchers', vouchers.length, 'payments', vouchers.filter(v => v.side === 'P').length);
+for (const t of totals) assert(Math.abs(t.stated - t.parsed) < 1, JSON.stringify(t));
+console.log('totals reconcile:', totals.length, 'blocks');
+assert.strictEqual(estimateOf('Est.Rs.2.00/ 1.00 lakhs'), 200000);
+assert.strictEqual(decode('a#47b#38c'), 'a/b&c');
+const c = {}; vouchers.forEach(v => v.flags.forEach(f => c[f.rule] = (c[f.rule] || 0) + 1)); console.log(c);
+vouchers.filter(v => v.flags.some(f => f.level === 'high')).slice(0, 6).forEach(v => console.log(v.date, v.voucher, v.amount, v.flags.map(f => f.rule).join('; '), '|', v.particulars.slice(0, 110)));
+console.log(vouchers[0]);
