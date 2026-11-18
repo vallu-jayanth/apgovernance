@@ -97,7 +97,7 @@ def export():
     for gp, district, work, matches, shows, screen, blank, model in c.execute('''
         SELECT p.gp_code, p.district, p.work, k.matches, k.shows, k.screen, k.blank, k.model
         FROM checks k JOIN photos p ON p.file = k.file AND p.work = k.work'''):
-        f = out.setdefault(district, {}).setdefault(gp, {}).setdefault(work, [])
+        f = out.setdefault(district, {}).setdefault(gp, {}).setdefault(work, []); model = model.split(' |')[0].split('/')[-1]
         if blank: f.append({'level': 'high', 'rule': 'Blank or unusable photo', 'text': f'The proof photo is blank or unreadable ({model}).'})
         elif matches == 'no': f.append({'level': 'high', 'rule': "Photo doesn't show this work", 'text': f'The photo shows {shows} ({model}). Ask to see the work itself.'})
         if screen: f.append({'level': 'medium', 'rule': 'Photo of a screen or printout', 'text': f'The proof looks like a photo taken of a screen or paper, not of the site ({model}).'})

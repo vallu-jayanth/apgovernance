@@ -22,6 +22,8 @@ GPUS = torch.cuda.device_count()
 # 7B needs two T4s; on a single GPU fall back to the 3B model
 MODEL = 'Qwen/Qwen2.5-VL-7B-Instruct' if GPUS >= 2 else 'Qwen/Qwen2.5-VL-3B-Instruct'
 PILOT = 0           # >0 limits the run to that many photos
+TAG = MODEL + ' | prompt v2'  # change the version when the prompt changes, so old answers are not reused
+print('Running', TAG, flush=True)
 BATCH = 8
 src = (glob.glob('/kaggle/input/**/photos.db', recursive=True) + glob.glob('/kaggle/input/**/pilot.db', recursive=True))[0]
 prev = [p for p in glob.glob('/kaggle/input/**/results.db', recursive=True)]
@@ -34,7 +36,7 @@ for p in prev:
     out.execute('ATTACH ? AS prev', (p,)); out.execute('INSERT OR IGNORE INTO checks SELECT * FROM prev.checks'); out.commit(); out.execute('DETACH prev')
 
 con = sqlite3.connect(f'file:{src}?mode=ro', uri=True)
-done = {(f, w) for f, w in out.execute('SELECT file, work FROM checks')}
+done = {(f, w) for f, w in out.execute('SELECT file, work FROM checks WHERE model = ?', (TAG,))}
 # one question per (work, distinct image): identical images reused within a work are judged once
 rows = con.execute('''SELECT p.file, p.work, p.work_name, p.stage, i.small, i.sha256 FROM photos p
   JOIN images i ON i.file = p.file WHERE i.small IS NOT NULL GROUP BY p.work, i.sha256''').fetchall()
@@ -85,9 +87,9 @@ for b in range(0, len(todo), BATCH):
     res = processor.batch_decode(gen[:, inputs['input_ids'].shape[1]:], skip_special_tokens=True)
     now = time.strftime('%Y-%m-%d %H:%M')
     out.executemany('INSERT OR REPLACE INTO checks VALUES (?,?,?,?,?,?,?,?,?,?)',
-                    [(r[0], r[1], MODEL, *parse(o), o, now) for r, o in zip(chunk, res)])
+                    [(r[0], r[1], TAG, *parse(o), o, now) for r, o in zip(chunk, res)])
     out.commit()
     n = b + len(chunk); print(f'{n}/{len(todo)}  {n / (time.time() - t0):.1f} photos/s', flush=True)
 
-for row in out.execute("SELECT matches, COUNT(*) FROM checks GROUP BY matches"): print(row)
+for row in out.execute("SELECT matches, COUNT(*) FROM checks WHERE model = ? GROUP BY matches", (TAG,)): print(row)
 for row in out.execute('SELECT work, matches, screen, blank, shows FROM checks ORDER BY matches LIMIT 200'): print(row)
