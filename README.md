@@ -77,7 +77,7 @@ its fingerprint (sha256), and the model's verdicts, with indexes for fast lookup
 4. Vision check on Kaggle's free GPUs:
    - Upload `data/photos.db` as a private Kaggle dataset.
    - New notebook, Accelerator **GPU T4 x2**, Internet **On**, add the dataset.
-   - First cell `!pip install -q vllm==0.7.3`, second cell: contents of `kaggle/vlm_check.py`.
+   - Import `kaggle/vlm_check.ipynb` (File → Import Notebook); it uses Hugging Face transformers, already on Kaggle.
    - Run with `PILOT = 50` first and check the answers; then `PILOT = 0` for everything.
      A session stops after 12 hours: add the last `results.db` as an input and run again to continue.
    - Download `results.db`, then `python3 scripts/photos_db.py import results.db && python3 scripts/photos_db.py export`, commit and push.

@@ -2,22 +2,27 @@
 #
 # Setup (Kaggle): Notebook -> Accelerator "GPU T4 x2", Internet "On".
 #   Add data -> your dataset containing photos.db (or kaggle/pilot.db for a first test).
-#   Cell 1:  !pip install -q vllm==0.7.3
+#   Cell 1:  !pip install -q "transformers>=4.49" accelerate   (usually already satisfied on Kaggle)
 #   Cell 2:  paste this file and run. Output: /kaggle/working/results.db (download it, then locally:
 #            python3 scripts/photos_db.py import results.db && python3 scripts/photos_db.py export)
 #
 # Resumable: Kaggle sessions stop after 12 h. Add the previous run's results.db as a second input;
 # photos already judged there are skipped and copied forward.
 # Untested on Kaggle yet: run kaggle/pilot.db first and check the answers by eye.
-import base64, glob, json, os, re, sqlite3, time
+import glob, io, json, os, re, sqlite3, time
 import torch
-from vllm import LLM, SamplingParams
+from PIL import Image
+from transformers import AutoProcessor
+try:
+    from transformers import Qwen2_5_VLForConditionalGeneration as VLM
+except ImportError:  # newer transformers releases
+    from transformers import AutoModelForImageTextToText as VLM
 
 GPUS = torch.cuda.device_count()
 # 7B needs two T4s; on a single GPU fall back to the 3B model
 MODEL = 'Qwen/Qwen2.5-VL-7B-Instruct' if GPUS >= 2 else 'Qwen/Qwen2.5-VL-3B-Instruct'
 PILOT = 0           # >0 limits the run to that many photos
-BATCH = 64
+BATCH = 8
 src = (glob.glob('/kaggle/input/**/photos.db', recursive=True) + glob.glob('/kaggle/input/**/pilot.db', recursive=True))[0]
 prev = [p for p in glob.glob('/kaggle/input/**/results.db', recursive=True)]
 OUT = '/kaggle/working/results.db'
@@ -46,9 +51,10 @@ Look only at the photo. Reply with JSON only, no other text:
  "blank": true | false,                 // blank, black, fully blurred or unusable?
  "stamp": "<date and place text printed on the photo, or empty>"}}"""
 
-llm = LLM(model=MODEL, tensor_parallel_size=max(GPUS, 1), dtype='half', max_model_len=4096,
-          limit_mm_per_prompt={'image': 1}, gpu_memory_utilization=0.9)
-params = SamplingParams(temperature=0, max_tokens=160)
+# T4 has no bfloat16: use float16; device_map spreads the 7B model over both GPUs
+model = VLM.from_pretrained(MODEL, torch_dtype=torch.float16, device_map='auto').eval()
+processor = AutoProcessor.from_pretrained(MODEL, min_pixels=64 * 28 * 28, max_pixels=448 * 448)
+processor.tokenizer.padding_side = 'left'  # required for batched generation
 
 def parse(text):
     m = re.search(r'\{.*\}', text, re.S)
@@ -63,13 +69,16 @@ assert parse('x {"shows":"a drain","matches":"no","screen":false,"blank":"true",
 t0 = time.time()
 for b in range(0, len(todo), BATCH):
     chunk = todo[b:b + BATCH]
-    convs = [[{'role': 'user', 'content': [
-        {'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,' + base64.b64encode(r[4]).decode()}},
-        {'type': 'text', 'text': PROMPT.format(name=r[2], stage=r[3])}]}] for r in chunk]
-    res = llm.chat(convs, params, use_tqdm=False)
+    texts = [processor.apply_chat_template([{'role': 'user', 'content': [{'type': 'image'}, {'type': 'text', 'text': PROMPT.format(name=r[2], stage=r[3])}]}],
+                                           tokenize=False, add_generation_prompt=True) for r in chunk]
+    images = [Image.open(io.BytesIO(r[4])).convert('RGB') for r in chunk]
+    inputs = processor(text=texts, images=images, padding=True, return_tensors='pt').to(model.device)
+    with torch.no_grad():
+        gen = model.generate(**inputs, max_new_tokens=160, do_sample=False)
+    res = processor.batch_decode(gen[:, inputs['input_ids'].shape[1]:], skip_special_tokens=True)
     now = time.strftime('%Y-%m-%d %H:%M')
     out.executemany('INSERT OR REPLACE INTO checks VALUES (?,?,?,?,?,?,?,?,?,?)',
-                    [(r[0], r[1], MODEL, *parse(o.outputs[0].text), o.outputs[0].text, now) for r, o in zip(chunk, res)])
+                    [(r[0], r[1], MODEL, *parse(o), o, now) for r, o in zip(chunk, res)])
     out.commit()
     n = b + len(chunk); print(f'{n}/{len(todo)}  {n / (time.time() - t0):.1f} photos/s', flush=True)
 
