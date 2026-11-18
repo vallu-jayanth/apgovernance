@@ -61,6 +61,10 @@ Rules for "matches":
 "screen": true only if the photo is clearly of a screen, a printout or another photo (visible bezel, paper edge, moire, a second stamp).
 "blank": true if the photo is blank, black, covered or so blurred nothing can be seen."""
 
+# re-running the cell in the same session: free the previous model first, or loading runs out of memory
+if 'model' in globals():
+    del model
+    import gc; gc.collect(); torch.cuda.empty_cache()
 # T4 has no bfloat16: use float16; device_map spreads the 7B model over both GPUs
 # leave ~3.5 GB per GPU free for images and generation, so long runs don't run out of memory
 model = VLM.from_pretrained(MODEL, torch_dtype=torch.float16, device_map='auto',
