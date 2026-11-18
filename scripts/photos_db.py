@@ -98,9 +98,10 @@ def export():
         SELECT p.gp_code, p.district, p.work, k.matches, k.shows, k.screen, k.blank, k.model
         FROM checks k JOIN photos p ON p.file = k.file AND p.work = k.work'''):
         f = out.setdefault(district, {}).setdefault(gp, {}).setdefault(work, []); model = model.split(' |')[0].split('/')[-1]
-        if blank: f.append({'level': 'high', 'rule': 'Blank or unusable photo', 'text': f'The proof photo is blank or unreadable ({model}).'})
-        elif matches == 'no': f.append({'level': 'high', 'rule': "Photo doesn't show this work", 'text': f'The photo shows {shows} ({model}). Ask to see the work itself.'})
-        if screen: f.append({'level': 'medium', 'rule': 'Photo of a screen or printout', 'text': f'The proof looks like a photo taken of a screen or paper, not of the site ({model}).'})
+        # model answers are screening hints, not findings: shown as "worth asking" until a person confirms them
+        if blank: f.append({'level': 'medium', 'rule': 'Photo may be blank', 'text': f'An automatic check ({model}) found this proof photo blank or unreadable. Open the photo to confirm.'})
+        elif matches == 'no': f.append({'level': 'medium', 'rule': 'Photo may not show this work', 'text': f'An automatic check ({model}) describes the photo as: {shows}. Open the photo to confirm.'})
+        if screen: f.append({'level': 'medium', 'rule': 'May be a photo of a screen', 'text': f'An automatic check ({model}) thinks this proof was photographed from a screen or paper, not at the site.'})
     os.makedirs(os.path.join(ROOT, 'docs', 'checks'), exist_ok=True)
     for district, m in out.items():
         for gp in m:  # drop repeated flags from multiple photos of one work
