@@ -309,7 +309,7 @@ footer .col { display: flex; flex-direction: column; gap: 6px; }
         <dt>Red flags</dt><dd>One payment larger than the work's estimate; total paid above the work's approved cost; the same amount paid twice for the same work; a voucher number used twice; a cash payment; a photo-proof problem on the matched work.</dd>
         <dt>Worth asking</dt><dd>No photo-tagged work matches a works payment; no clear description; an amount just under ₹1, 2, 3, 5, 10, 20 or 50 lakh (bills split to avoid approval or tender limits); three or more payments of the same amount; a payment dated on a Sunday.</dd>
         <dt>For information</dt><dd>Large round amounts; payments in the last week of March.</dd>
-        <dt>Photo proof problems</dt><dd>No GPS location; tagged outside Andhra Pradesh; a "completed" photo uploaded a month or more before the foundation or roof photo of the same work; the same photo used for different works; tagged more than 15 km from the panchayat's other works; three or more different works photographed at exactly the same point.</dd>
+        <dt>Photo proof problems</dt><dd>No GPS location; tagged outside Andhra Pradesh; a "completed" photo uploaded a month or more before the foundation or roof photo of the same work; the same photo used for different works; tagged more than 15 km from the panchayat's other works; three or more different works photographed at exactly the same point; an identical picture uploaded as proof for another work; and, where checked, an open-source vision model's review that the photo does not show the work, is blank, or is a photo of a screen or paper. Model reviews can be wrong, so open the photo before raising it.</dd>
         <dt>Limits</dt><dd>The cash book has no bills or vendor names, and photos cannot be checked for being blank from here. Matching a payment to a photo is by the work's name and can miss or mismatch. Treat every flag as a question to ask.</dd>
       </dl>
     </details>
@@ -568,7 +568,7 @@ function renderState(s) {
 }
 
 /* ---------- Panchayats ---------- */
-let GP = [], geoCache = {}, current = null, currentWorks = [];
+let GP = [], geoCache = {}, checkCache = {}, current = null, currentWorks = [];
 const uniq = (a) => [...new Set(a)].sort((x, y) => x.localeCompare(y));
 function fill(sel, opts, val) { sel.replaceChildren(...opts.map((o) => new Option(o))); sel.value = opts.includes(val) ? val : opts[0]; return sel.value; }
 function pick(d, m, p) {
@@ -595,6 +595,11 @@ async function showPanchayat() {
     $('plot').replaceChildren(); return;
   }
   currentWorks = flagWorks(((all || {})[g.gp_code] || []).map((w) => ({...w})));
+  // photo checks (identical images, vision-model review); a missing file just means not checked yet
+  checkCache[g.district] ??= fetch('checks/' + slug(g.district) + '.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+  const checks = ((await checkCache[g.district]) || {})[g.gp_code] || {}; if (g !== current) return;
+  const firstOf = new Map(); currentWorks.forEach((w) => { if (!firstOf.has(w.a)) firstOf.set(w.a, w); });
+  for (const [a, fl] of Object.entries(checks)) if (firstOf.has(a)) firstOf.get(a).flags.push(...fl);
   const grouped = groupWorks(currentWorks); const bad = grouped.filter((w) => worst(w.flags)).length;
   const tiles = [['Available to spend', rupees(ob + rec), ''], ['Spent', rupees(exp), ''], ['Left unspent', rupees(cb), ''],
     ['Photo-tagged works', String(grouped.length), grouped.length ? 'good' : (exp > 0 ? 'bad' : '')], ['Works with photo problems', String(bad), bad ? 'bad' : '']];

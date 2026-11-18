@@ -63,6 +63,30 @@ Go to https://app.netlify.com/drop and drag the `docs` folder onto the page. You
 
 Connect the GitHub repository from Option 1 at https://pages.cloudflare.com, set the output directory to `docs`, no build command. Faster in India and free.
 
+## Checking the photos (free, open-source vision model on Kaggle)
+
+All photo data lives in one local SQLite file, `data/photos.db` (not committed; about 2 GB when full).
+It stores every proof photo's details, a small 448px copy of each image (about 20 KB instead of 220 KB),
+its fingerprint (sha256), and the model's verdicts, with indexes for fast lookups.
+
+1. `python3 scripts/photos_db.py index` — list every photo from `docs/geo/`.
+2. `python3 scripts/photos_db.py fetch` — download and shrink all photos (about 3 hours; safe to stop and rerun).
+   Add `--district visakhapatanam` or `--gp 211758` to do part of it.
+3. `python3 scripts/photos_db.py export` — finds identical pictures reused for different works (no AI needed)
+   and writes `docs/checks/<district>.json`, which the site shows on each work.
+4. Vision check on Kaggle's free GPUs:
+   - Upload `data/photos.db` as a private Kaggle dataset.
+   - New notebook, Accelerator **GPU T4 x2**, Internet **On**, add the dataset.
+   - First cell `!pip install -q vllm==0.7.3`, second cell: contents of `kaggle/vlm_check.py`.
+   - Run with `PILOT = 50` first and check the answers; then `PILOT = 0` for everything.
+     A session stops after 12 hours: add the last `results.db` as an input and run again to continue.
+   - Download `results.db`, then `python3 scripts/photos_db.py import results.db && python3 scripts/photos_db.py export`, commit and push.
+5. `python3 scripts/photos_db.py stats` shows progress.
+
+The model (Qwen2.5-VL-7B) says what each photo shows, whether it matches the work and stage, whether it is
+a photo of a screen or paper, whether it is blank, and reads the date/place stamp. Its answers can be wrong:
+the site labels them as model reviews, and a person should open the photo before raising it publicly.
+
 ## Updating the state figures
 
 When the CAG publishes a newer State Finances Audit Report or the Accountant General publishes a newer *Accounts at a Glance*, edit `docs/data/state.json` (numbers are in ₹ crore; keep every explanation in plain words and cite the source), then commit.
