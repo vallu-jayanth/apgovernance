@@ -115,7 +115,7 @@ function flagWorks(rows) {
     const k = w.f ? w.f.split('/').pop() : '';
     if (k && byFile.get(k).size > 1) add('high', 'Same photo, different works', 'The same photo file is used as proof for more than one work.');
     const spot = w.lat && w.lon ? bySpot.get(w.lat.toFixed(5) + ',' + w.lon.toFixed(5)) : null;
-    if (STAGE(w.s) === 3 && w.d && lastEarly.has(asset(w)) && (Date.parse(lastEarly.get(asset(w)).d) - Date.parse(w.d)) / 864e5 >= 30) add('high', 'Stages out of order', `A "completed" photo${w.as ? ' of ' + w.as : ''} was uploaded on ${w.d}, before its "${lastEarly.get(asset(w)).s.toLowerCase()}" photo of ${lastEarly.get(asset(w)).d}. A work should not be finished before its foundation is laid.`);
+    if (STAGE(w.s) === 3 && w.d && lastEarly.has(asset(w)) && (Date.parse(lastEarly.get(asset(w)).d) - Date.parse(w.d)) / 864e5 >= 30) add('high', 'Finished before it started', `A "completed" photo${w.as ? ' of ' + w.as : ''} was uploaded on ${w.d}, before its "${lastEarly.get(asset(w)).s.toLowerCase()}" photo of ${lastEarly.get(asset(w)).d}. A work should not be finished before its foundation is laid.`);
     if (spot && spot.size >= 3) add('medium', 'Many works, one spot', `Photos for ${spot.size} different works were taken at exactly the same GPS point. Check that each work was photographed at its own site.`);
     w.flags = f;
   }

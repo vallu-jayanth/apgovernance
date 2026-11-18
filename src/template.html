@@ -111,7 +111,7 @@ select, input[type=search] { font: 500 1rem var(--body); color: var(--ink); back
 .meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
 .meta .mono { font-family: var(--mono); }
 .wlinks { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.9rem; font-weight: 500; }
-.flagline { font-size: 0.85rem; }
+.flagline { font-size: 0.82rem; color: var(--muted); }
 .flagline .tag { margin-right: 6px; }
 details.photos summary { cursor: pointer; color: var(--accent); font-weight: 500; }
 details.photos[open] { display: grid; gap: 6px; }
@@ -155,153 +155,190 @@ input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .guide { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 16px; }
 footer { padding-block: 32px 48px; font-size: 0.85rem; color: var(--muted); }
 footer .col { display: flex; flex-direction: column; gap: 6px; }
+
+/* dashboard */
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 1000px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .kpi:last-child { grid-column: span 2; } }
+.kpi { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.kpi b { font: 800 clamp(1.3rem, 2.4vw, 1.9rem)/1.1 var(--display); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.kpi span { color: var(--muted); font-size: 0.9rem; line-height: 1.35; }
+.kpi b span { font: inherit; color: inherit; }
+.kpi.warn b { color: var(--med); } .kpi.bad b { color: var(--high); }
+.coin-wrap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 760px) { .coin-wrap { grid-template-columns: 1fr; } }
+.coin-card { background: var(--band); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.coins { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; }
+.coins i { aspect-ratio: 1; border-radius: 50%; display: block; }
+.coin-card .legend { display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; color: var(--ink); }
+.coin-card .legend b { font-variant-numeric: tabular-nums; }
+.probs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: 12px; }
+.prob { background: var(--band); border: 1px solid var(--line); border-left: 4px solid var(--med); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 6px; }
+.prob.high { border-left-color: var(--high); }
+.prob-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.prob-top h3 { font-size: 1.02rem; }
+.prob-top b { font: 800 1.1rem var(--display); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.prob.high .prob-top b { color: var(--high); } .prob .prob-top b { color: var(--med); }
+.prob p { font-size: 0.95rem; }
+.prob details summary { cursor: pointer; color: var(--accent); font-size: 0.85rem; font-weight: 500; }
+.prob details p { font-size: 0.88rem; color: var(--muted); margin-top: 6px; }
+.report { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 16px; align-items: stretch; }
+@media (max-width: 640px) { .report { grid-template-columns: 1fr; } }
+.grade { border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; justify-content: center; gap: 6px; text-align: center; background: var(--bg); border: 1px solid var(--line); }
+.grade b { font: 800 1.25rem var(--display); }
+.grade span { font-size: 0.85rem; color: var(--muted); }
+.grade.good { background: var(--ok-soft); border-color: transparent; } .grade.good b { color: var(--ok); }
+.grade.amber { background: var(--med-soft); border-color: transparent; } .grade.amber b { color: var(--med); }
+.grade.red { background: var(--high-soft); border-color: transparent; } .grade.red b { color: var(--high); }
+.grade .light { width: 44px; height: 44px; border-radius: 50%; margin: 0 auto; background: var(--line); }
+.grade.good .light { background: var(--ok); } .grade.amber .light { background: var(--med); } .grade.red .light { background: var(--high); }
+.more-works summary { cursor: pointer; color: var(--accent); font-weight: 500; padding: 8px 0; }
+.more-works[open] { display: flex; flex-direction: column; gap: 10px; }
+.dbars { display: grid; gap: 8px; }
+.dbar { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) 3rem; gap: 10px; align-items: center; font-size: 0.9rem; }
+.dbar .t { height: 14px; background: var(--bar-plan); border-radius: 99px; overflow: hidden; }
+.dbar .f { height: 100%; background: var(--high); border-radius: 99px; }
+.dbar .n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+@media (max-width: 480px) { .dbar { grid-template-columns: 7rem minmax(0, 1fr) 2.6rem; font-size: 0.82rem; } }
+.steps4 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; counter-reset: s; }
+@media (max-width: 760px) { .steps4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.steps4 li { counter-increment: s; background: var(--band); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; font-size: 0.92rem; display: flex; gap: 10px; align-items: flex-start; }
+.steps4 li::before { content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 700; font-size: 0.8rem; }
+.drop { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
 </style>
 
 <nav class="nav" aria-label="Sections">
   <div class="col">
     <a class="brand" href="#top"><i aria-hidden="true"></i><span>AP Public Finance Watch</span></a>
     <div class="links">
-      <a href="#state">State money</a>
-      <a href="#panchayat">Your panchayat</a>
-      <a href="#vouchers">Check vouchers</a>
-      <a href="#guide">Ask questions</a>
+      <a href="#state">The state</a>
+      <a href="#panchayat">My village</a>
+      <a href="#vouchers">Payments</a>
+      <a href="#guide">Take action</a>
     </div>
   </div>
 </nav>
 
 <header class="hero" id="top">
-  <div class="col">
-    <div class="stack">
-      <span class="eyebrow">Andhra Pradesh · public money, in plain words</span>
-      <h1>See where your money went, down to your village.</h1>
-      <p class="lede">Official figures from the state's auditors and the Ministry of Panchayati Raj, explained simply. Look up your gram panchayat, check every payment it made, and see the photo proof of the works it paid for.</p>
-      <div class="row"><a class="cta" href="#panchayat">Find your panchayat</a><a class="cta ghost" href="#vouchers">Check vouchers</a></div>
+  <div class="col stack">
+    <div class="stack" style="gap:8px">
+      <h1>Where did Andhra Pradesh's money go?</h1>
+      <p class="lede">Simple answers from official records. Pick your village to see its report card.</p>
     </div>
-    <div class="hero-card" aria-label="Key numbers">
-      <div><span class="muted small">The state spent in <span data-k="year">—</span></span><div class="big" data-k="spent">—</div></div>
-      <div><span class="muted small">Sent to agencies with no bills received by the auditors</span><div class="big" style="color:var(--high)" data-k="nobills">—</div></div>
-      <div><span class="muted small">Village panchayats that spent grant money in 2025-26 but show no photo-tagged works</span><div class="big" data-k="nophoto">—</div></div>
+    <div class="kpis" aria-label="Key numbers">
+      <div class="kpi"><b data-k="spent">—</b><span>spent by the state in <span data-k="year">—</span></span></div>
+      <div class="kpi"><b><span data-k="build">—</span> of ₹100</b><span>went into building new things</span></div>
+      <div class="kpi warn"><b><span data-k="borrow">—</span> of ₹100</b><span>was borrowed</span></div>
+      <div class="kpi bad"><b data-k="nobills">—</b><span>spent, but no receipts shown</span></div>
+      <div class="kpi bad"><b data-k="nophoto">—</b><span>villages spent money but showed no photos</span></div>
     </div>
+    <div class="row"><a class="cta" href="#panchayat">See my village</a><a class="cta ghost" href="#vouchers">Check payments</a></div>
   </div>
 </header>
 
 <section class="band" id="state">
   <div class="col stack">
-    <div class="stack" style="gap:10px">
-      <span class="eyebrow">State money · <span data-k="year">—</span></span>
-      <h2>What the state planned, and what it actually did</h2>
+    <div class="stack" style="gap:6px">
+      <span class="eyebrow">The state · <span data-k="year">—</span></span>
+      <h2>If the state spent ₹100…</h2>
       <p class="lede" id="state-lede">—</p>
     </div>
-    <div class="bars" id="bars"></div>
-    <div class="stack" style="gap:10px">
-      <h2>Problems the auditors found</h2>
-      <p class="lede">These come from the official accounts and the latest audit. A problem here means money whose use cannot be fully checked, not proof that it was stolen.</p>
+    <div class="coin-wrap">
+      <div class="coin-card"><h3>Where it went</h3><div class="coins" id="coins-out" role="img"></div><div class="legend" id="legend-out"></div></div>
+      <div class="coin-card"><h3>Where it came from</h3><div class="coins" id="coins-in" role="img"></div><div class="legend" id="legend-in"></div></div>
     </div>
-    <div class="cards" id="cards"></div>
-    <details class="gloss">
-      <summary>What do these words mean?</summary>
-      <dl>
-        <dt>Crore / lakh</dt><dd>1 lakh = ₹1,00,000. 1 crore = 100 lakh = ₹1,00,00,000. 1 lakh crore = ₹1,00,000 crore.</dd>
-        <dt>Capital spending</dt><dd>Money spent on things that last: roads, buildings, irrigation, schools. It builds the state's future.</dd>
-        <dt>Revenue spending</dt><dd>Day-to-day running costs: salaries, pensions, interest, subsidies, electricity.</dd>
-        <dt>Revenue deficit</dt><dd>How much more the state spent on running costs than it earned. It is covered by borrowing.</dd>
-        <dt>Voucher</dt><dd>The record of one payment. Each should have a bill and supporting papers behind it.</dd>
-        <dt>Abstract Contingent bill</dt><dd>A request to draw cash in advance. A detailed bill with receipts must follow within 90 days.</dd>
-        <dt>Utilisation certificate</dt><dd>A document showing how a grant was spent, sent back to whoever gave the grant.</dd>
-        <dt>CAG</dt><dd>The Comptroller and Auditor General of India, the constitutional auditor of all government spending.</dd>
-      </dl>
-    </details>
+    <div class="stack" style="gap:6px">
+      <h2>Plan vs. what really happened</h2>
+    </div>
+    <div class="bars" id="bars"></div>
+    <div class="stack" style="gap:6px">
+      <h2>Problems the auditors found</h2>
+      <p class="muted">A problem means nobody can fully check where the money went. It is not proof that it was stolen.</p>
+    </div>
+    <div class="probs" id="cards"></div>
     <p class="small muted" id="state-src"></p>
   </div>
 </section>
 
 <section class="band white" id="panchayat">
   <div class="col stack">
-    <div class="stack" style="gap:10px">
-      <span class="eyebrow">Your gram panchayat · 2025-26</span>
-      <h2>Look up your village panchayat</h2>
-      <p class="lede">15th Finance Commission grants received and spent, and every work the panchayat has photographed and GPS-tagged as proof on eGramSwaraj.</p>
+    <div class="stack" style="gap:6px">
+      <span class="eyebrow">Your village · 2025-26</span>
+      <h2>Your village's report card</h2>
     </div>
     <div class="picker">
       <label for="pd">District<select id="pd"></select></label>
       <label for="pm">Mandal<select id="pm"></select></label>
-      <label for="pp">Panchayat<select id="pp"></select></label>
+      <label for="pp">Village panchayat<select id="pp"></select></label>
     </div>
-    <p class="small muted">Panchayat records use the 13 districts from before 2022. Towns and cities, such as Gajuwaka in Greater Visakhapatnam, have no gram panchayats and are not listed.</p>
-    <div class="tiles" id="ptiles"></div>
-    <div id="psentence"></div>
-    <div class="stack" style="gap:12px">
-      <div class="row" style="justify-content:space-between"><h3>Works with photo proof</h3><a id="geolink" class="small" href="https://egramswaraj.gov.in/geoTaggingReport.do" target="_blank" rel="noopener">See the list on eGramSwaraj</a></div>
-      <div class="works-wrap">
+    <p class="small muted">Towns and cities (like Gajuwaka) have no village panchayat, so they are not here. Districts are the 13 old ones.</p>
+    <div class="report" id="report">
+      <div class="grade" id="grade"></div>
+      <div class="stack" style="gap:12px;min-width:0">
+        <div id="psentence"></div>
+        <div class="tiles" id="ptiles"></div>
+      </div>
+    </div>
+    <div class="works-wrap">
+      <div class="stack" style="gap:10px;min-width:0">
+        <div class="row" style="justify-content:space-between"><h3>Works and their photos</h3><a id="geolink" class="small" href="https://egramswaraj.gov.in/geoTaggingReport.do" target="_blank" rel="noopener">Open on eGramSwaraj</a></div>
         <div class="works" id="works"><div class="empty">Loading…</div></div>
-        <aside class="plot" aria-label="Where the works were tagged">
-          <h3 style="font-size:0.95rem">Where the photos were taken</h3>
-          <div id="plot"></div>
-          <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>Tagged work</span><span><i class="dot" style="background:var(--high)"></i>Has a problem</span></div>
-          <p class="small muted">Positions relative to each other, from the photos' GPS. Use Satellite view on a work to see the place itself.</p>
-        </aside>
       </div>
+      <aside class="plot" aria-label="Where the photos were taken">
+        <h3 style="font-size:0.95rem">Where the photos were taken</h3>
+        <div id="plot"></div>
+        <div class="legend"><span><i class="dot" style="background:var(--accent)"></i>OK</span><span><i class="dot" style="background:var(--high)"></i>Has a question</span></div>
+      </aside>
     </div>
-    <details class="gloss">
-      <summary>Compare districts</summary>
-      <div class="tablewrap" style="margin-top:12px">
-        <table>
-          <thead><tr><th>District</th><th class="num">Panchayats</th><th class="num">Spent (₹ crore)</th><th class="num">Spent nothing</th><th class="num">Spent, but no photo-tagged works</th></tr></thead>
-          <tbody id="dist"></tbody>
-        </table>
-      </div>
-    </details>
+    <div class="stack" style="gap:8px">
+      <h3>Which districts show the least proof?</h3>
+      <p class="small muted">Out of every 100 villages that spent money, how many showed no photos of any work.</p>
+      <div class="dbars" id="dist"></div>
+    </div>
   </div>
 </section>
 
 <section class="band" id="vouchers">
   <div class="col stack">
-    <div class="stack" style="gap:10px">
-      <span class="eyebrow">Every payment, every month</span>
-      <h2>Check your panchayat's vouchers</h2>
-      <p class="lede">Load the panchayat's official monthly cash book. You'll see every payment, with unusual ones highlighted, and each work payment is matched to its photo proof.</p>
+    <div class="stack" style="gap:6px">
+      <span class="eyebrow">Every payment</span>
+      <h2>Check what your village paid for</h2>
+      <p class="muted">Every payment is a "voucher". Load your village's monthly list and we'll point out the odd ones.</p>
     </div>
-    <div class="how">
-      <div class="steps">
-        <h3>Get the cash book from eGramSwaraj</h3>
-        <ol>
-          <li>Open the <a href="https://egramswaraj.gov.in/cashBookPublic.do" target="_blank" rel="noopener">Cash Book report</a>.</li>
-          <li>Choose <b>Month-wise</b>, the year, <b>Andhra Pradesh</b>, your district, mandal, panchayat and the month.</li>
-          <li>Pick <b>Excel</b>, type the CAPTCHA, press <b>Get Report</b>.</li>
-          <li>Select the same panchayat above, then drop the file here.</li>
-        </ol>
-        <p class="small muted">Your file is read only on your device. Nothing is uploaded.</p>
-      </div>
-      <div class="drop" id="drop">
-        <h3>Drop the cash book here</h3>
-        <p class="small muted">Excel file (.xls or .xlsx) from eGramSwaraj.</p>
-        <label class="cta" for="file">Choose file</label>
-        <input type="file" id="file" accept=".xls,.xlsx">
-        <p id="vstatus" class="small muted" role="status"></p>
-      </div>
+    <ol class="steps4">
+      <li>Open the <a href="https://egramswaraj.gov.in/cashBookPublic.do" target="_blank" rel="noopener">Cash Book</a></li>
+      <li>Pick <b>Month-wise</b>, Andhra Pradesh, your village and month</li>
+      <li>Choose <b>Excel</b>, type the code, <b>Get Report</b></li>
+      <li>Drop the file below</li>
+    </ol>
+    <div class="drop" id="drop">
+      <div><h3>Drop the cash book here</h3><p class="small muted">Stays on your phone or computer. Nothing is uploaded.</p></div>
+      <label class="cta" for="file">Choose file</label>
+      <input type="file" id="file" accept=".xls,.xlsx">
+      <p id="vstatus" class="small muted" role="status"></p>
     </div>
     <div class="stack" style="gap:8px"><h3 id="vsrc"></h3><div class="tiles" id="vstats"></div></div>
-    <div class="chips" role="group" aria-label="Filter vouchers">
+    <div class="chips" role="group" aria-label="Filter payments">
       <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
       <button class="chip" type="button" data-f="high" aria-pressed="false">Red flags</button>
       <button class="chip" type="button" data-f="medium" aria-pressed="false">Worth asking</button>
-      <button class="chip" type="button" data-f="info" aria-pressed="false">For information</button>
-      <input id="vq" type="search" placeholder="Search work or voucher no." aria-label="Search vouchers">
+      <button class="chip" type="button" data-f="info" aria-pressed="false">Just so you know</button>
+      <input id="vq" type="search" placeholder="Search" aria-label="Search payments">
     </div>
     <div class="tablewrap">
       <table class="vt">
-        <thead><tr><th>Date</th><th>Voucher</th><th class="num">Amount (₹)</th><th>What it was for</th><th>Photo proof</th><th>Flags</th></tr></thead>
+        <thead><tr><th>Date</th><th>Voucher</th><th class="num">Amount (₹)</th><th>What it was for</th><th>Photo proof</th><th>Why it's flagged</th></tr></thead>
         <tbody id="vrows"></tbody>
       </table>
     </div>
     <details class="gloss">
-      <summary>How payments are flagged</summary>
+      <summary>How we spot odd payments</summary>
       <dl>
-        <dt>Red flags</dt><dd>One payment larger than the work's estimate; total paid above the work's approved cost; the same amount paid twice for the same work; a voucher number used twice; a cash payment; a photo-proof problem on the matched work.</dd>
-        <dt>Worth asking</dt><dd>No photo-tagged work matches a works payment; no clear description; an amount just under ₹1, 2, 3, 5, 10, 20 or 50 lakh (bills split to avoid approval or tender limits); three or more payments of the same amount; a payment dated on a Sunday.</dd>
-        <dt>For information</dt><dd>Large round amounts; payments in the last week of March.</dd>
-        <dt>Photo proof problems</dt><dd>No GPS location; tagged outside Andhra Pradesh; a "completed" photo uploaded a month or more before the foundation or roof photo of the same work; the same photo used for different works; tagged more than 15 km from the panchayat's other works; three or more different works photographed at exactly the same point; an identical picture uploaded as proof for another work; and, where checked, an open-source vision model's review that the photo does not show the work, is blank, or is a photo of a screen or paper. Model reviews can be wrong, so open the photo before raising it.</dd>
-        <dt>Limits</dt><dd>The cash book has no bills or vendor names, and photos cannot be checked for being blank from here. Matching a payment to a photo is by the work's name and can miss or mismatch. Treat every flag as a question to ask.</dd>
+        <dt>Red flags</dt><dd>Paid more than the work's estimate or approved cost; the same amount paid twice for the same work; a voucher number used twice; paid in cash; a problem with the work's photo.</dd>
+        <dt>Worth asking</dt><dd>No photo of the work; no clear description; an amount just under a limit like ₹1 or ₹5 lakh (bills split to avoid checks); the same amount paid three or more times; paid on a Sunday.</dd>
+        <dt>Just so you know</dt><dd>Big round amounts; payments rushed in the last week of March.</dd>
+        <dt>Photo problems</dt><dd>No GPS; taken outside the state or far from the village; "finished" photo before the foundation photo ("finished before it started"); the same picture used for different works; many works photographed from one spot; and, where checked, a computer check that says the photo doesn't show the work, is blank, or is a photo of a screen. Computer checks can be wrong, so open the photo first.</dd>
+        <dt>Limits</dt><dd>The cash book has no bills or shop names. Matching a payment to a photo uses the work's name and can miss. Every flag is a question, not proof.</dd>
       </dl>
     </details>
   </div>
@@ -309,19 +346,27 @@ footer .col { display: flex; flex-direction: column; gap: 6px; }
 
 <section class="band white" id="guide">
   <div class="col stack">
-    <div class="stack" style="gap:10px">
-      <span class="eyebrow">Take action</span>
-      <h2>Ask questions, get the papers</h2>
-    </div>
+    <div class="stack" style="gap:6px"><span class="eyebrow">What you can do</span><h2>Ask. It's your money.</h2></div>
     <div class="guide">
-      <div class="card"><h3>At the Gram Sabha</h3><p class="muted">Every gram panchayat must hold Gram Sabha meetings. Bring the flagged vouchers and ask the Sarpanch and Panchayat Secretary to show the bills and the work.</p></div>
-      <div class="card"><h3>File an RTI request</h3><p class="muted">Write to the Public Information Officer at the Gram Panchayat or Mandal Parishad office. Ask for copies of the bills, measurement book pages, work photos and payment proof for each voucher number. A reply is due within 30 days.</p></div>
-      <div class="card"><h3>Visit the work</h3><p class="muted">Use Satellite view and the photo link on each work to find it. Check that it exists, matches the description and looks like the money spent.</p></div>
+      <div class="card"><h3>1. Ask at the Gram Sabha</h3><p class="muted">Show the flagged items. Ask to see the bills and the work.</p></div>
+      <div class="card"><h3>2. File an RTI</h3><p class="muted">Ask the panchayat office for copies of the bills and photos. They must reply in 30 days.</p></div>
+      <div class="card"><h3>3. Go and look</h3><p class="muted">Use the photo and map links. Is the work really there?</p></div>
     </div>
     <details class="gloss">
-      <summary>Questions for the flagged payments you loaded</summary>
+      <summary>Questions to ask about the payments you loaded</summary>
       <div class="row" style="margin-top:12px"><button class="cta ghost" type="button" id="copy">Copy questions</button><span id="copied" class="small muted" role="status"></span></div>
       <textarea id="qs" readonly aria-label="Questions" style="margin-top:10px"></textarea>
+    </details>
+    <details class="gloss">
+      <summary>What do these words mean?</summary>
+      <dl>
+        <dt>Lakh / crore</dt><dd>1 lakh = ₹1,00,000. 1 crore = 100 lakh. 1 lakh crore = 1,00,000 crore.</dd>
+        <dt>Building new things</dt><dd>Roads, schools, buildings, water projects. Things that last.</dd>
+        <dt>Running costs</dt><dd>Salaries, pensions, interest on loans, subsidies, electricity.</dd>
+        <dt>Voucher</dt><dd>The record of one payment. A bill should be behind every one.</dd>
+        <dt>Receipts / bills</dt><dd>Papers showing what was bought and from whom.</dd>
+        <dt>CAG</dt><dd>India's official auditor. It checks how governments spend money.</dd>
+      </dl>
     </details>
   </div>
 </section>
@@ -365,37 +410,42 @@ function parseCSV(text) {
 
 /* ---------- State money ---------- */
 function renderState(s) {
-  setK('year', s.year); setK('spent', crore(s.budget.total.actual)); setK('nobills', crore(s.flags[0].amount_cr));
+  const b = s.budget, tot = b.total.actual;
+  const per100 = (v) => Math.round(v / tot * 100);
+  setK('year', s.year); setK('spent', crore(tot)); setK('nobills', crore(s.flags[0].amount_cr));
+  setK('build', '₹' + per100(b.capital.actual)); setK('borrow', '₹' + per100(b.borrowing.actual));
   document.querySelector('[data-k="srcurl"]').href = s.source_url; document.querySelector('[data-k="auditurl"]').href = s.audit_url;
-  const b = s.budget, capPct = Math.round(b.capital.actual / b.capital.planned * 100);
-  $('state-lede').textContent = `In ${s.year} Andhra Pradesh planned to spend ${crore(b.total.planned)} and spent ${crore(b.total.actual)}. It spent only ${capPct}% of what it planned on roads, buildings and other lasting assets, while borrowing more than planned.`;
+  $('state-lede').textContent = `Only ₹${per100(b.capital.actual)} built new things like roads and schools. About ₹${per100(b.borrowing.actual)} of it was borrowed money that has to be paid back.`;
+  // 100 coins: each coin is ₹1 of every ₹100
+  const coins = (id, legId, parts, label) => {
+    const n = parts.map((x) => Math.round(x[1] / tot * 100)); n[0] += 100 - n.reduce((a, v) => a + v, 0);  // rounding goes to the biggest part
+    const box = $(id); box.setAttribute('aria-label', label + ': ' + parts.map((x, i) => `₹${n[i]} ${x[0]}`).join(', '));
+    box.replaceChildren(...parts.flatMap((x, i) => Array.from({length: n[i]}, () => { const c = el('i'); c.style.background = x[2]; return c; })));
+    $(legId).replaceChildren(...parts.map((x, i) => { const r = el('span'); const d = el('i', 'dot'); d.style.background = x[2]; r.append(d, el('b', '', `₹${n[i]} `), document.createTextNode(x[0])); return r; }));
+  };
+  coins('coins-out', 'legend-out', [['running costs: salaries, pensions, interest', b.revenue_exp.actual, 'var(--bar-plan)'], ['building new things', b.capital.actual, 'var(--accent)'], ['loans given to others', tot - b.revenue_exp.actual - b.capital.actual, 'var(--med)']], 'Where ₹100 went');
+  coins('coins-in', 'legend-in', [['taxes', b.tax.actual, 'var(--accent)'], ['borrowed', b.borrowing.actual, 'var(--high)'], ['gifts from the central government', b.grants.actual, 'var(--ok)'], ['other income', tot - b.tax.actual - b.borrowing.actual - b.grants.actual, 'var(--bar-plan)']], 'Where ₹100 came from');
   const items = [
-    ['Building lasting assets (capital spending)', b.capital, 'Roads, buildings, irrigation, schools.'],
-    ['Running costs (revenue spending)', b.revenue_exp, 'Salaries, pensions, interest, subsidies.'],
-    ['Tax collected', b.tax, 'State taxes plus its share of central taxes.'],
-    ['Grants from the central government', b.grants, ''],
-    ['Borrowing', b.borrowing, 'More than planned means more debt to repay.'],
-    ['Gap between running costs and income', b.revenue_deficit, 'Covered by borrowing.'],
+    ['Building new things', b.capital, 'Planned a lot, built about half'],
+    ['Borrowing', b.borrowing, 'Borrowed more than planned'],
+    ['Spending more than earning (running costs)', b.revenue_deficit, 'The gap grew much bigger than planned'],
   ];
-  const max = (it) => Math.max(it.planned, it.actual);
   $('bars').replaceChildren(...items.map(([label, it, note]) => {
-    const d = el('div', 'bar');
-    const head = el('div', 'bar-head'); head.append(el('b', '', label), el('span', 'muted', `${crore(it.actual)} of ${crore(it.planned)} planned`));
-    const tr = el('div', 'track'); tr.setAttribute('role', 'img'); tr.setAttribute('aria-label', `${label}: ${crore(it.actual)} actual against ${crore(it.planned)} planned`);
-    if (it.actual > it.planned) { tr.style.background = 'var(--high-soft)'; }
-    const f = el('div', 'fill'); f.style.width = Math.min(100, it.actual / it.planned * 100) + '%'; if (it.actual > it.planned) f.style.background = 'var(--high)';
-    tr.append(f); d.append(head, tr);
-    const pct = Math.round(it.actual / it.planned * 100);
-    d.append(el('span', 'bar-note', `${pct}% of plan${note ? '. ' + note : ''}`));
+    const d = el('div', 'bar'), over = it.actual > it.planned;
+    const head = el('div', 'bar-head'); head.append(el('b', '', label), el('span', 'muted', `${crore(it.actual)} vs ${crore(it.planned)} planned`));
+    const tr = el('div', 'track'); tr.setAttribute('role', 'img'); tr.setAttribute('aria-label', `${label}: ${crore(it.actual)} against ${crore(it.planned)} planned`);
+    const f = el('div', 'fill'); f.style.width = Math.min(100, it.actual / it.planned * 100) + '%';
+    if (over) { tr.style.background = 'var(--high-soft)'; f.style.background = 'var(--high)'; }
+    tr.append(f); d.append(head, tr, el('span', 'bar-note', `${Math.round(it.actual / it.planned * 100)}% of plan. ${note}.`));
     return d;
   }));
   $('cards').replaceChildren(...s.flags.map((f) => {
-    const c = el('article', 'card ' + f.severity);
-    c.append(el('span', 'tag ' + f.severity, f.severity === 'high' ? 'Serious' : 'Concern'), el('h3', '', f.title),
-      el('div', 'amt', f.amount_cr == null ? 'Amount unknown' : crore(f.amount_cr)), el('p', '', f.plain), el('p', 'why', 'Why it matters: ' + f.why), el('span', 'small muted', 'Source: ' + f.source));
-    return c;
+    const c = el('article', 'prob ' + f.severity);
+    const top = el('div', 'prob-top'); top.append(el('h3', '', f.kid_title), el('b', '', f.amount_cr == null ? '?' : crore(f.amount_cr)));
+    const more = el('details'); more.append(el('summary', '', 'Tell me more'), el('p', '', f.plain), el('p', '', 'Why it matters: ' + f.why), el('p', '', 'Source: ' + f.source));
+    c.append(top, el('p', '', f.kid), more); return c;
   }));
-  $('state-src').textContent = 'Source: ' + s.source + ' The utilisation-certificate finding is from the ' + s.audit_source;
+  $('state-src').textContent = 'Source: ' + s.source;
 }
 
 /* ---------- Panchayats ---------- */
@@ -421,7 +471,7 @@ async function showPanchayat() {
   const all = await loadGeo(g.district); if (g !== current) return;
   if (!all && +g.geotagged_assets > 0) {
     currentWorks = [];
-    $('ptiles').replaceChildren(); $('psentence').replaceChildren();
+    $('ptiles').replaceChildren(); $('psentence').replaceChildren(); $('grade').className = 'grade'; $('grade').replaceChildren();
     $('works').replaceChildren(el('div', 'empty', `Photo proof for ${g.panchayat} (${g.geotagged_assets} tagged works) could not be loaded. Reload the page to try again.`));
     $('plot').replaceChildren(); return;
   }
@@ -432,14 +482,18 @@ async function showPanchayat() {
   const firstOf = new Map(); currentWorks.forEach((w) => { if (!firstOf.has(w.a)) firstOf.set(w.a, w); });
   for (const [a, fl] of Object.entries(checks)) if (firstOf.has(a)) firstOf.get(a).flags.push(...fl);
   const grouped = groupWorks(currentWorks); const bad = grouped.filter((w) => worst(w.flags)).length;
-  const tiles = [['Available to spend', rupees(ob + rec), ''], ['Spent', rupees(exp), ''], ['Left unspent', rupees(cb), ''],
-    ['Photo-tagged works', String(grouped.length), grouped.length ? 'good' : (exp > 0 ? 'bad' : '')], ['Works with photo problems', String(bad), bad ? 'bad' : '']];
+  const tiles = [['Money it had', rupees(ob + rec), ''], ['Money it spent', rupees(exp), ''], ['Money left', rupees(cb), ''],
+    ['Works with photos', String(grouped.length), grouped.length ? 'good' : (exp > 0 ? 'bad' : '')]];
   $('ptiles').replaceChildren(...tiles.map(([l, v, c]) => { const t = el('div', 'tile ' + c); t.append(el('b', '', v), el('span', 'small muted', l)); return t; }));
-  let msg, cls = 'callout';
-  if (exp === 0) msg = `${g.panchayat} recorded no spending of these grants in 2025-26, though ${rupees(ob + rec)} was available.`;
-  else if (!currentWorks.length) { msg = `${g.panchayat} spent ${rupees(exp)} in 2025-26 but has no works with geo-tagged photos on eGramSwaraj. Residents can ask the Panchayat Secretary what was built and for the bills.`; cls += ' bad'; }
-  else msg = `${g.panchayat} spent ${rupees(exp)} in 2025-26 and has ${grouped.length} photo-tagged ${grouped.length === 1 ? 'work' : 'works'}${bad ? `. ${bad} of them ${bad === 1 ? 'has' : 'have'} a photo-proof problem worth asking about` : ''}.`;
-  const p = el('p', cls, msg); $('psentence').replaceChildren(p);
+  const serious = grouped.filter((w) => worst(w.flags) === 'high').length;
+  let grade, word, msg;
+  if (exp > 0 && !grouped.length) { grade = 'red'; word = 'Needs answers'; msg = `${g.panchayat} spent ${rupees(exp)} but shows no photos of any work. Ask what was built.`; }
+  else if (serious) { grade = 'red'; word = 'Needs answers'; msg = `${g.panchayat} spent ${rupees(exp)}. ${serious} of its ${grouped.length} works have a serious problem with their photo proof.`; }
+  else if (bad) { grade = 'amber'; word = 'Some questions'; msg = `${g.panchayat} spent ${rupees(exp)}. ${bad} of its ${grouped.length} works have something worth asking about.`; }
+  else if (exp === 0) { grade = 'amber'; word = 'Nothing spent'; msg = `${g.panchayat} had ${rupees(ob + rec)} but spent none of it this year.`; }
+  else { grade = 'good'; word = 'Looks OK'; msg = `${g.panchayat} spent ${rupees(exp)} and has photos for ${grouped.length} works. Nothing odd found.`; }
+  const gb = $('grade'); gb.className = 'grade ' + grade; gb.replaceChildren(el('div', 'light'), el('b', '', word), el('span', '', 'from photo checks'));
+  $('psentence').replaceChildren(el('p', 'lede', msg));
   $('geolink').href = geoListUrl(g.gp_code);
   renderWorks(); renderPlot(); relinkVouchers();
 }
@@ -448,7 +502,7 @@ function renderWorks() {
   const box = $('works');
   if (!currentWorks.length) { box.replaceChildren(el('div', 'empty', 'No geo-tagged works on eGramSwaraj for this panchayat in 2025-26.')); return; }
   const list = groupWorks(currentWorks).sort((a, b) => (rank[worst(b.flags)] || 0) - (rank[worst(a.flags)] || 0) || b.c - a.c);
-  box.replaceChildren(...list.map((w) => {
+  const card = (w) => {
     const c = el('article', 'work ' + worst(w.flags));
     const stRank = (s) => (/complet/i.test(s) ? 3 : /roof/i.test(s) ? 2 : /plinth/i.test(s) ? 1 : 0);
     const top_ = w.photos.reduce((a, p) => (stRank(p.s) > stRank(a.s) ? p : a), w.photos[0]);
@@ -467,7 +521,12 @@ function renderWorks() {
     });
     c.append(det);
     return c;
-  }));
+  };
+  const flagged = list.filter((w) => worst(w.flags)), fine = list.filter((w) => !worst(w.flags));
+  const nodes = flagged.map(card);
+  if (fine.length) { const d = el('details', 'more-works'); d.append(el('summary', '', `Show ${fine.length} ${fine.length === 1 ? 'work' : 'works'} with no questions`), ...fine.map(card)); nodes.push(d); }
+  if (!flagged.length && fine.length) nodes[0].open = true;
+  box.replaceChildren(...nodes);
 }
 function renderPlot() {
   const pts = currentWorks.filter((w) => w.lat && w.lon && w.lat > 12 && w.lat < 20);
@@ -486,11 +545,12 @@ function renderPlot() {
   box.replaceChildren(svg, el('p', 'small muted', `Box is about ${kmAcross.toFixed(1)} km across.`));
 }
 function renderDistricts() {
-  const by = d3group(GP, (r) => r.district);
-  $('dist').replaceChildren(...[...by].sort((a, b) => a[0].localeCompare(b[0])).map(([d, rs]) => {
-    const tr = el('tr'); const cells = [d, rs.length.toLocaleString('en-IN'), (rs.reduce((a, r) => a + +r.expenditure, 0) / 1e7).toLocaleString('en-IN', {maximumFractionDigits: 2}),
-      rs.filter((r) => +r.expenditure === 0).length.toLocaleString('en-IN'), rs.filter((r) => +r.expenditure > 0 && +r.geotagged_assets === 0).length.toLocaleString('en-IN')];
-    cells.forEach((v, i) => tr.append(el('td', i ? 'num' : '', v))); return tr;
+  const rows = [...d3group(GP, (r) => r.district)].map(([d, rs]) => { const spent = rs.filter((r) => +r.expenditure > 0);
+    return [d, spent.length ? Math.round(spent.filter((r) => +r.geotagged_assets === 0).length / spent.length * 100) : 0]; }).sort((a, b) => b[1] - a[1]);
+  $('dist').replaceChildren(...rows.map(([d, pct]) => {
+    const r = el('div', 'dbar'); const tr = el('div', 't'); const f = el('div', 'f'); f.style.width = pct + '%'; tr.append(f);
+    tr.setAttribute('role', 'img'); tr.setAttribute('aria-label', `${d}: ${pct} of 100 villages showed no photos`);
+    r.append(el('span', '', d), tr, el('span', 'n', String(pct))); return r;
   }));
 }
 const d3group = (a, f) => a.reduce((m, r) => m.set(f(r), [...(m.get(f(r)) || []), r]), new Map());
