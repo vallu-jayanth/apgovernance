@@ -10,6 +10,7 @@
 # photos already judged there are skipped and copied forward.
 # Untested on Kaggle yet: run kaggle/pilot.db first and check the answers by eye.
 import glob, io, json, os, re, sqlite3, time
+os.environ.setdefault('PYTORCH_CUDA_ALLOC_CONF', 'expandable_segments:True')  # must be set before torch loads
 import torch
 from PIL import Image
 from transformers import AutoProcessor
@@ -24,7 +25,7 @@ MODEL = 'Qwen/Qwen2.5-VL-7B-Instruct' if GPUS >= 2 else 'Qwen/Qwen2.5-VL-3B-Inst
 PILOT = 0           # >0 limits the run to that many photos
 TAG = MODEL + ' | prompt v2'  # change the version when the prompt changes, so old answers are not reused
 print('Running', TAG, flush=True)
-BATCH = 8
+BATCH = 4
 src = (glob.glob('/kaggle/input/**/photos.db', recursive=True) + glob.glob('/kaggle/input/**/pilot.db', recursive=True))[0]
 prev = [p for p in glob.glob('/kaggle/input/**/results.db', recursive=True)]
 OUT = '/kaggle/working/results.db'
@@ -61,7 +62,9 @@ Rules for "matches":
 "blank": true if the photo is blank, black, covered or so blurred nothing can be seen."""
 
 # T4 has no bfloat16: use float16; device_map spreads the 7B model over both GPUs
-model = VLM.from_pretrained(MODEL, torch_dtype=torch.float16, device_map='auto').eval()
+# leave ~3.5 GB per GPU free for images and generation, so long runs don't run out of memory
+model = VLM.from_pretrained(MODEL, torch_dtype=torch.float16, device_map='auto',
+                            max_memory={i: '11GiB' for i in range(max(GPUS, 1))}).eval()
 processor = AutoProcessor.from_pretrained(MODEL, min_pixels=64 * 28 * 28, max_pixels=448 * 448)
 processor.tokenizer.padding_side = 'left'  # required for batched generation
 
@@ -75,9 +78,7 @@ def parse(text):
 
 assert parse('x {"shows":"a drain","matches":"no","screen":false,"blank":"true","stamp":""}') == ('no', 'a drain', 0, 1, '')
 
-t0 = time.time()
-for b in range(0, len(todo), BATCH):
-    chunk = todo[b:b + BATCH]
+def ask(chunk):
     texts = [processor.apply_chat_template([{'role': 'user', 'content': [{'type': 'image'}, {'type': 'text', 'text': PROMPT.format(name=r[2])}]}],
                                            tokenize=False, add_generation_prompt=True) for r in chunk]
     images = [Image.open(io.BytesIO(r[4])).convert('RGB') for r in chunk]
@@ -85,9 +86,23 @@ for b in range(0, len(todo), BATCH):
     with torch.no_grad():
         gen = model.generate(**inputs, max_new_tokens=160, do_sample=False)
     res = processor.batch_decode(gen[:, inputs['input_ids'].shape[1]:], skip_special_tokens=True)
+    del inputs, gen
+    return res
+
+t0 = time.time()
+for b in range(0, len(todo), BATCH):
+    chunk = todo[b:b + BATCH]
+    try:
+        pairs = list(zip(chunk, ask(chunk)))
+    except torch.cuda.OutOfMemoryError:
+        torch.cuda.empty_cache(); pairs = []
+        for r in chunk:  # retry one by one; a photo that still fails is left for the next run
+            try: pairs += list(zip([r], ask([r])))
+            except torch.cuda.OutOfMemoryError: torch.cuda.empty_cache(); print('skipped (out of memory):', r[0], flush=True)
     now = time.strftime('%Y-%m-%d %H:%M')
     out.executemany('INSERT OR REPLACE INTO checks VALUES (?,?,?,?,?,?,?,?,?,?)',
-                    [(r[0], r[1], TAG, *parse(o), o, now) for r, o in zip(chunk, res)])
+                    [(r[0], r[1], TAG, *parse(o), o, now) for r, o in pairs])
+    torch.cuda.empty_cache()
     out.commit()
     n = b + len(chunk); print(f'{n}/{len(todo)}  {n / (time.time() - t0):.1f} photos/s', flush=True)
 
