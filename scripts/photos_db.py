@@ -64,7 +64,7 @@ def _download(file):
 
 def fetch(district=None, limit=None, gp=None):
     c = db()
-    q = 'SELECT DISTINCT p.file FROM photos p LEFT JOIN images i ON i.file = p.file WHERE i.file IS NULL'
+    q = 'SELECT DISTINCT p.file FROM photos p LEFT JOIN images i ON i.file = p.file WHERE i.sha256 IS NULL'  # includes earlier failures
     args = []
     if district: q += ' AND p.district = ?'; args.append(district)
     if gp: q += ' AND p.gp_code = ?'; args.append(gp)
