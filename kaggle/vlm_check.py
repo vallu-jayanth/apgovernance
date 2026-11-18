@@ -42,14 +42,21 @@ todo = [r for r in rows if (r[0], r[1]) not in done]
 if PILOT: todo = todo[:PILOT]
 print(len(rows), 'photo/work pairs,', len(todo), 'to check', flush=True)
 
-PROMPT = """This photo was uploaded by a village panchayat in Andhra Pradesh, India, as proof for a public work.
-Work: "{name}". Stage claimed: "{stage}".
-Look only at the photo. Reply with JSON only, no other text:
+PROMPT = """This photo was uploaded by a village panchayat in Andhra Pradesh, India, as proof for a public work: "{name}".
+Ignore any stage label; judge only whether the photo relates to this kind of work.
+Reply with JSON only, no other text:
 {{"shows": "<what the photo actually shows, max 12 words>",
- "matches": "yes" | "no" | "unclear",   // does it plausibly show this work at this stage?
- "screen": true | false,                // is it a photo of a screen, printout or another photo?
- "blank": true | false,                 // blank, black, fully blurred or unusable?
- "stamp": "<date and place text printed on the photo, or empty>"}}"""
+ "matches": "yes" | "no" | "unclear",
+ "screen": true | false,
+ "blank": true | false,
+ "stamp": "<date and place text printed on the photo, or empty>"}}
+Rules for "matches":
+- "yes": the photo plausibly shows this type of work, its site or its materials (a pipe, trench or tap for a pipeline;
+  a road surface for a road; a light or pole for street lights; a drain or channel for drainage; bins, carts or waste for waste management).
+- "no": it clearly shows something unrelated to this work (street lights for sanitation kits, pipes for waste management, a blank wall for a road).
+- "unclear": you cannot tell.
+"screen": true only if the photo is clearly of a screen, a printout or another photo (visible bezel, paper edge, moire, a second stamp).
+"blank": true if the photo is blank, black, covered or so blurred nothing can be seen."""
 
 # T4 has no bfloat16: use float16; device_map spreads the 7B model over both GPUs
 model = VLM.from_pretrained(MODEL, torch_dtype=torch.float16, device_map='auto').eval()
@@ -69,7 +76,7 @@ assert parse('x {"shows":"a drain","matches":"no","screen":false,"blank":"true",
 t0 = time.time()
 for b in range(0, len(todo), BATCH):
     chunk = todo[b:b + BATCH]
-    texts = [processor.apply_chat_template([{'role': 'user', 'content': [{'type': 'image'}, {'type': 'text', 'text': PROMPT.format(name=r[2], stage=r[3])}]}],
+    texts = [processor.apply_chat_template([{'role': 'user', 'content': [{'type': 'image'}, {'type': 'text', 'text': PROMPT.format(name=r[2])}]}],
                                            tokenize=False, add_generation_prompt=True) for r in chunk]
     images = [Image.open(io.BytesIO(r[4])).convert('RGB') for r in chunk]
     inputs = processor(text=texts, images=images, padding=True, return_tensors='pt').to(model.device)
