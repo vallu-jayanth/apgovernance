@@ -99,13 +99,15 @@ def export():
         FROM checks k JOIN photos p ON p.file = k.file AND p.work = k.work'''):
         f = out.setdefault(district, {}).setdefault(gp, {}).setdefault(work, []); model = model.split(' |')[0].split('/')[-1]
         # model answers are screening hints, not findings: shown as "worth asking" until a person confirms them
-        if blank: f.append({'level': 'medium', 'rule': 'Photo may be blank', 'text': f'An automatic check ({model}) found this proof photo blank or unreadable. Open the photo to confirm.'})
-        elif matches == 'no': f.append({'level': 'medium', 'rule': 'Photo may not show this work', 'text': f'An automatic check ({model}) describes the photo as: {shows}. Open the photo to confirm.'})
+        if blank: f.append({'level': 'medium', 'rule': 'Photo may be blank', 'text': f'An automatic check ({model}) found this proof photo black or blank: nothing of the work can be seen. Open the photo to confirm.'})
+        # "matches = no" is stored but not shown: a spot check found it right only about half the time (blank and screen were right every time)
         if screen: f.append({'level': 'medium', 'rule': 'May be a photo of a screen', 'text': f'An automatic check ({model}) thinks this proof was photographed from a screen or paper, not at the site.'})
     os.makedirs(os.path.join(ROOT, 'docs', 'checks'), exist_ok=True)
     for district, m in out.items():
-        for gp in m:  # drop repeated flags from multiple photos of one work
-            for w in m[gp]: m[gp][w] = list({(x['rule'], x['text']): x for x in m[gp][w]}.values())
+        # drop repeated flags from multiple photos of one work, and works whose photos raised nothing
+        m = {gp: {w: list({(x['rule'], x['text']): x for x in f}.values()) for w, f in ws.items() if f} for gp, ws in m.items()}
+        m = {gp: ws for gp, ws in m.items() if ws}; out[district] = m
+        if not m: continue
         json.dump(m, open(os.path.join(ROOT, 'docs', 'checks', district + '.json'), 'w'), separators=(',', ':'))
     print('exported', sum(len(w) for m in out.values() for w in m.values()), 'flagged works')
 
